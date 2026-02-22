@@ -25,7 +25,9 @@ export const DVSummaryCard = memo(function DVSummaryCard({ dvByYear, sortedYears
       : null
 
   const ratePer100k = latestYear != null && latestDV > 0 ? getRatePer100k(latestDV, latestYear) : null
-  const is7YearHigh = latestYear === 2024 && latestDV > 0
+  const maxDV = dvByYear.length > 0 ? Math.max(...dvByYear) : 0
+  const isRecordHigh = latestDV > 0 && latestDV >= maxDV && dvByYear.length >= 2
+  const yearSpan = sortedYears.length
 
   return (
     <div
@@ -72,9 +74,9 @@ export const DVSummaryCard = memo(function DVSummaryCard({ dvByYear, sortedYears
                   {latestYear != null && <span className="ml-1 text-xs">({latestYear})</span>}
                 </span>
               )}
-              {is7YearHigh && (
+              {isRecordHigh && latestYear != null && (
                 <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
-                  7-year high in 2024
+                  {yearSpan}-year high in {latestYear}
                 </span>
               )}
             </div>

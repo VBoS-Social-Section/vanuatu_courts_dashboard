@@ -1,4 +1,6 @@
 Court,Year,CaseType,Filings,Disposals,ClearanceRate
+Supreme Court,2025,Total,900,850,94
+Supreme Court,2025,Criminal,245,248,101
 Supreme Court,2024,Total,879,821,93
 Supreme Court,2024,Criminal,237,240,101
 Supreme Court,2023,Total,850,830,98
@@ -11,6 +13,10 @@ Supreme Court,2020,Total,780,770,99
 Supreme Court,2020,Criminal,260,257,99
 Supreme Court,2018,Total,760,750,99
 Supreme Court,2018,Criminal,265,262,99
+Magistrates Court,2025,Total,2450,2180,89
+Magistrates Court,2025,Criminal,820,775,95
+Magistrates Court,2025,PI,360,395,110
+Magistrates Court,2025,Violence,1270,1295,102
 Magistrates Court,2024,Total,2383,2105,88
 Magistrates Court,2024,Criminal,800,760,95
 Magistrates Court,2024,PI,350,385,110
@@ -35,6 +41,9 @@ Magistrates Court,2018,Total,1800,1800,100
 Magistrates Court,2018,Criminal,750,745,99
 Magistrates Court,2018,PI,300,294,98
 Magistrates Court,2018,Violence,750,761,101
+Island Court,2025,Total,395,400,101
+Island Court,2025,Criminal,185,205,111
+Island Court,2025,Maintenance,210,275,131
 Island Court,2024,Total,388,390,101
 Island Court,2024,Criminal,180,200,111
 Island Court,2024,Maintenance,208,270,130
@@ -53,6 +62,9 @@ Island Court,2020,Maintenance,220,235,107
 Island Court,2018,Total,450,460,102
 Island Court,2018,Criminal,225,220,98
 Island Court,2018,Maintenance,225,240,107
+Court of Appeal,2025,Total,82,84,102
+Court of Appeal,2025,Civil,46,49,107
+Court of Appeal,2025,Criminal,36,35,97
 Court of Appeal,2024,Total,80,82,102
 Court of Appeal,2024,Civil,45,48,107
 Court of Appeal,2024,Criminal,35,34,97

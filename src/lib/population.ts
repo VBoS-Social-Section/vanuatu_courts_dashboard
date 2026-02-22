@@ -11,6 +11,7 @@ export const VANUATU_POPULATION: Record<number, number> = {
   2022: 312_000,
   2023: 318_000,
   2024: 324_000,
+  2025: 330_000,
 }
 
 export function getPopulation(year: number): number | null {

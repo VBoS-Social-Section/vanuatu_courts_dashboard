@@ -5,7 +5,7 @@ A static, client-side React dashboard for Vanuatu Judiciary annual reports stati
 ## Features
 
 - **Court filter** – Multi-select dropdown (Court of Appeal, Supreme Court, Magistrates Court, Island Court)
-- **Year filter** – Slider to select year range (2018, 2020–2024)
+- **Year filter** – Slider to select year range (2018, 2020–2025)
 - **Page-specific KPI indicators** – Four cards per data page
 - **Court color consistency** – Each court has a distinct color across all charts (e.g. Supreme = dark blue, Magistrates = teal)
 - **Chart units** – Tooltips and axes show units (cases, days, %, etc.)
@@ -78,11 +78,13 @@ Supreme Court,2024,ClearanceRate,93,%
 ...
 ```
 
-## Adding a New Year (e.g. 2025)
+## Adding a New Year (e.g. 2026)
 
-1. Add 2025 rows to the source CSVs in `data/` (see table above)
-2. Run `npm run generate-data` to regenerate `public/data/*.csv` and `public/data/years.json`
-3. Build with `npm run build`
+1. Add rows for the new year to the source CSVs in `data/` (see table above)
+2. Add a population estimate in `src/lib/population.ts` if needed
+3. Run `npm run generate-data` to regenerate `public/data/*.csv` and `public/data/years.json`
+4. Add the PDF to `public/annual-reports/` and update `public/annual-reports/reports.json` with a `file` entry
+5. Build with `npm run build`
 
 ## Annual Reports (PDFs)
 
@@ -90,8 +92,9 @@ PDF links are configured in `public/annual-reports/reports.json` and shown in th
 
 ```json
 [
-  {"year": 2024, "title": "Annual Statistics 2024", "url": "https://courts.gov.vu/..."}
+  {"year": 2024, "title": "Annual Statistics 2024", "url": "https://courts.gov.vu/..."},
+  {"year": 2025, "title": "Annual Statistics 2025", "file": "2025-annual-statistics.pdf"}
 ]
 ```
 
-For local PDFs, use `"file": "2024.pdf"` and place files in `public/annual-reports/`.
+For local PDFs, use `"file": "filename.pdf"` and place files in `public/annual-reports/`.

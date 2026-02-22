@@ -13,7 +13,7 @@ export function AppFooter({ compact }: AppFooterProps) {
       }
     >
       <p>© {new Date().getFullYear()} Vanuatu Bureau of Statistics</p>
-      <p className="mt-1 text-xs opacity-80">What&apos;s new: Feb 2026 — 2024 data, DV trends, comparison mode, trend lines</p>
+      <p className="mt-1 text-xs opacity-80">What&apos;s new: Feb 2026 — 2025 Annual Statistics, DV trends, comparison mode, trend lines</p>
     </footer>
   )
 }

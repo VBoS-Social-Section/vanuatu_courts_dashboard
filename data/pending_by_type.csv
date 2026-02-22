@@ -1,4 +1,7 @@
 Court,Year,CaseType,Pending,PctOfTotal
+Supreme Court,2025,Civil,535,56
+Supreme Court,2025,Criminal,340,36
+Supreme Court,2025,Other,75,8
 Supreme Court,2024,Civil,550,55
 Supreme Court,2024,Criminal,350,35
 Supreme Court,2024,Other,100,10
@@ -17,6 +20,10 @@ Supreme Court,2020,Other,90,10
 Supreme Court,2018,Civil,470,55
 Supreme Court,2018,Criminal,300,35
 Supreme Court,2018,Other,90,10
+Magistrates Court,2025,Criminal,472,35
+Magistrates Court,2025,Violence,405,30
+Magistrates Court,2025,PI,270,20
+Magistrates Court,2025,Other,203,15
 Magistrates Court,2024,Criminal,488,35
 Magistrates Court,2024,Violence,418,30
 Magistrates Court,2024,PI,279,20
@@ -41,6 +48,9 @@ Magistrates Court,2018,Criminal,403,35
 Magistrates Court,2018,Violence,345,30
 Magistrates Court,2018,PI,230,20
 Magistrates Court,2018,Other,172,15
+Island Court,2025,Criminal,245,36
+Island Court,2025,Maintenance,245,36
+Island Court,2025,Other,190,28
 Island Court,2024,Criminal,250,36
 Island Court,2024,Maintenance,250,36
 Island Court,2024,Other,195,28
@@ -59,6 +69,8 @@ Island Court,2020,Other,166,28
 Island Court,2018,Criminal,199,35
 Island Court,2018,Maintenance,199,35
 Island Court,2018,Other,172,30
+Court of Appeal,2025,Civil,11,50
+Court of Appeal,2025,Criminal,11,50
 Court of Appeal,2024,Civil,12,50
 Court of Appeal,2024,Criminal,12,50
 Court of Appeal,2023,Civil,13,52

@@ -1,4 +1,10 @@
 Court,Year,Province,Filings,PctOfTotal
+Magistrates Court,2025,Sanma,637,26
+Magistrates Court,2025,Shefa,613,25
+Magistrates Court,2025,Malampa,417,17
+Magistrates Court,2025,Tafea,392,16
+Magistrates Court,2025,Penama,245,10
+Magistrates Court,2025,Torba,150,6
 Magistrates Court,2024,Sanma,620,26
 Magistrates Court,2024,Shefa,595,25
 Magistrates Court,2024,Malampa,405,17
@@ -35,6 +41,12 @@ Magistrates Court,2018,Malampa,306,17
 Magistrates Court,2018,Tafea,288,16
 Magistrates Court,2018,Penama,180,10
 Magistrates Court,2018,Torba,108,6
+Island Court,2025,Sanma,107,27
+Island Court,2025,Shefa,99,25
+Island Court,2025,Malampa,67,17
+Island Court,2025,Tafea,63,16
+Island Court,2025,Penama,40,10
+Island Court,2025,Torba,20,5
 Island Court,2024,Sanma,105,27
 Island Court,2024,Shefa,97,25
 Island Court,2024,Malampa,66,17

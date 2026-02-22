@@ -59,7 +59,7 @@ async function loadYearData(year: number): Promise<StatRow[]> {
 
 async function loadAvailableYears(): Promise<{ years: number[]; lastUpdated?: string }> {
   const res = await fetch(`${BASE}data/years.json`)
-  if (!res.ok) return { years: [2018, 2020, 2021, 2022, 2023, 2024] }
+  if (!res.ok) return { years: [2018, 2020, 2021, 2022, 2023, 2024, 2025] }
   const json = (await res.json()) as { years?: number[]; lastUpdated?: string }
   return { years: json.years ?? [], lastUpdated: json.lastUpdated }
 }

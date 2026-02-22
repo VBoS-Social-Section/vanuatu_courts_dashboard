@@ -44,7 +44,7 @@ export function DataSourcesMethodologyPage({ embedded }: DataSourcesMethodologyP
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><strong className="text-foreground">Feb 2026:</strong> Added 2024 data; improved DV trend visibility (dedicated card, YoY, rate per 100k); comparison mode (compare two years side-by-side); trend lines on key charts; WCAG contrast; NA values shown as greyed &quot;—&quot;.</li>
+              <li><strong className="text-foreground">Feb 2026:</strong> Added 2025 Annual Statistics; improved DV trend visibility (dedicated card, YoY, rate per 100k); comparison mode (compare two years side-by-side); trend lines on key charts; WCAG contrast; NA values shown as greyed &quot;—&quot;.</li>
             </ul>
           </CardContent>
         </Card>
