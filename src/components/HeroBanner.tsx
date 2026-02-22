@@ -9,7 +9,7 @@ import {
 import { cn } from '@/lib/utils'
 
 const STORAGE_KEY = 'vanuatu-dashboard-hero-dismissed'
-const AUTO_HIDE_MS = 8_000
+const AUTO_HIDE_MS = 60_000 // 1 minute
 
 const MESSAGE =
   'This dashboard visualises key workload, backlog, timeliness and gender metrics from Vanuatu Judiciary annual reports (2018–2025).'
@@ -24,6 +24,7 @@ interface HeroBannerProps {
 export function HeroBanner({ lastUpdated, className, placement = 'banner' }: HeroBannerProps) {
   const [dismissed, setDismissed] = useState(true)
   const [mounted, setMounted] = useState(false)
+  const [secondsLeft, setSecondsLeft] = useState(Math.ceil(AUTO_HIDE_MS / 1000))
 
   useEffect(() => {
     try {
@@ -37,13 +38,25 @@ export function HeroBanner({ lastUpdated, className, placement = 'banner' }: Her
 
   useEffect(() => {
     if (!dismissed && placement === 'banner') {
-      const id = setTimeout(() => {
+      setSecondsLeft(Math.ceil(AUTO_HIDE_MS / 1000))
+      const endTime = Date.now() + AUTO_HIDE_MS
+
+      const timeoutId = setTimeout(() => {
         setDismissed(true)
         try {
           localStorage.setItem(STORAGE_KEY, 'true')
         } catch {}
       }, AUTO_HIDE_MS)
-      return () => clearTimeout(id)
+
+      const intervalId = setInterval(() => {
+        const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000))
+        setSecondsLeft(remaining)
+      }, 1000)
+
+      return () => {
+        clearTimeout(timeoutId)
+        clearInterval(intervalId)
+      }
     }
   }, [dismissed, placement])
 
@@ -87,7 +100,12 @@ export function HeroBanner({ lastUpdated, className, placement = 'banner' }: Her
         <div className="rounded-xl border border-[#7551ff]/30 bg-[#7551ff]/5 px-4 py-3">
           <div className="flex items-start gap-3">
             <Info className="mt-0.5 size-4 shrink-0 text-[#422AFB]" strokeWidth={2} />
-            <p className="min-w-0 flex-1 text-sm text-muted-foreground">{message}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-muted-foreground">{message}</p>
+              <p className="mt-1 text-xs text-muted-foreground/80">
+                Dismisses in {secondsLeft}s
+              </p>
+            </div>
             <Button
               variant="ghost"
               size="icon"
