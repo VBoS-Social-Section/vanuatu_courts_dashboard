@@ -4,6 +4,7 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTable } from '@/components/DataTable'
+import { NaCell } from '@/components/NaCell'
 import { CourtColorLegend } from './CourtColorLegend'
 import { getCourtColor, sortCourtsByOrder } from '@/lib/court-colors'
 import type { StatRow } from '../types'
@@ -66,8 +67,8 @@ const PendingCasesTableInner = function PendingCasesTable({ getRowsByMetric, sel
         },
       },
       { accessorKey: 'year', header: 'Year', meta: { className: 'text-right' }, cell: ({ getValue }) => <span className="block text-right">{getValue()}</span> },
-      { accessorKey: 'pending', header: 'Pending', meta: { className: 'text-right' }, cell: ({ getValue }) => <span className="block text-right">{getValue() ?? 'N/A'}</span> },
-      { accessorKey: 'pdr', header: 'PDR', meta: { className: 'text-right' }, cell: ({ getValue }) => <span className="block text-right">{getValue() ?? 'N/A'}</span> },
+      { accessorKey: 'pending', header: 'Pending', meta: { className: 'text-right' }, cell: ({ getValue }) => <NaCell value={getValue() as number | null} /> },
+      { accessorKey: 'pdr', header: 'PDR', meta: { className: 'text-right' }, cell: ({ getValue }) => <NaCell value={getValue() as number | null} /> },
     ],
     []
   )

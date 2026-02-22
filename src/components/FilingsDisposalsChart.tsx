@@ -3,7 +3,7 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CourtColorLegend } from './CourtColorLegend'
-import { getCourtColor, sortCourtsByOrder } from '@/lib/court-colors'
+import { getCourtColor, getCourtShortLabel, sortCourtsByOrder } from '@/lib/court-colors'
 import type { StatRow } from '../types'
 
 interface Props {
@@ -28,16 +28,18 @@ export const FilingsDisposalsChart = memo(function FilingsDisposalsChart({ data,
 
   const series: Highcharts.SeriesColumnOptions[] = courts.flatMap((court) => [
     {
-      name: `${court} – Filings`,
+      name: `${getCourtShortLabel(court)} Filings`,
       type: 'column',
       data: byCourtYear.map((r) => (r.court === court ? r.Filings : null)),
       color: getCourtColor(court),
+      court,
     },
     {
-      name: `${court} – Disposals`,
+      name: `${getCourtShortLabel(court)} Disposals`,
       type: 'column',
       data: byCourtYear.map((r) => (r.court === court ? r.Disposals : null)),
       color: getCourtColor(court),
+      court,
     },
   ])
 
@@ -52,7 +54,19 @@ export const FilingsDisposalsChart = memo(function FilingsDisposalsChart({ data,
     plotOptions: { column: { borderWidth: 0 } },
     series,
     legend: { enabled: true },
-    tooltip: { shared: true, valueSuffix: ' cases' },
+    tooltip: {
+      shared: true,
+      valueSuffix: ' cases',
+      formatter: function (this: Highcharts.TooltipFormatterContextObject) {
+        const parts = this.points?.map((p) => {
+          const court = (p.series.options as { court?: string }).court ?? ''
+          const type = p.series.name?.split(' ').pop() ?? ''
+          return `<span style="color:${p.color}">●</span> ${court} – ${type}: ${p.y?.toLocaleString() ?? 0} cases`
+        }) ?? []
+        const cat = this.points?.[0]?.point.category
+        return (cat ? `<b>${cat}</b><br/>` : '') + parts.join('<br/>')
+      },
+    },
     credits: { enabled: false },
   }
 

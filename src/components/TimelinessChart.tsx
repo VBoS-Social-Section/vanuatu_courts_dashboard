@@ -3,7 +3,7 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CourtColorLegend } from './CourtColorLegend'
-import { getCourtColor, sortCourtsByOrder } from '@/lib/court-colors'
+import { getCourtColor, getCourtShortLabel, sortCourtsByOrder } from '@/lib/court-colors'
 import type { StatRow } from '../types'
 
 interface Props {
@@ -28,16 +28,18 @@ export const TimelinessChart = memo(function TimelinessChart({ data, selectedYea
 
   const series: Highcharts.SeriesColumnOptions[] = courts.flatMap((court) => [
     {
-      name: `${court} – Criminal (days)`,
+      name: `${getCourtShortLabel(court)} Criminal`,
       data: seriesData.map((r) => (r.court === court ? r.Criminal : null)),
       type: 'column',
       color: getCourtColor(court),
+      court,
     },
     {
-      name: `${court} – Civil (days)`,
+      name: `${getCourtShortLabel(court)} Civil`,
       data: seriesData.map((r) => (r.court === court ? r.Civil : null)),
       type: 'column',
       color: getCourtColor(court),
+      court,
     },
   ])
 
@@ -49,7 +51,7 @@ export const TimelinessChart = memo(function TimelinessChart({ data, selectedYea
       crosshair: true,
     },
     yAxis: {
-      title: { text: 'Days' },
+      title: { text: 'Days (to disposition)' },
       gridLineDashStyle: 'Dot',
       plotLines: [
         { value: 180, color: '#422AFB', dashStyle: 'Dash', width: 2, zIndex: 5, label: { text: 'Criminal target (180d)', align: 'right', style: { fontSize: '10px' } } },
@@ -59,7 +61,19 @@ export const TimelinessChart = memo(function TimelinessChart({ data, selectedYea
     plotOptions: { column: { borderWidth: 0 } },
     series,
     legend: { enabled: true },
-    tooltip: { shared: true, valueSuffix: ' days' },
+    tooltip: {
+      shared: true,
+      valueSuffix: ' days',
+      formatter: function (this: Highcharts.TooltipFormatterContextObject) {
+        const parts = this.points?.map((p) => {
+          const court = (p.series.options as { court?: string }).court ?? ''
+          const type = p.series.name?.split(' ').pop() ?? ''
+          return `<span style="color:${p.color}">●</span> ${court} – ${type}: ${p.y} days`
+        }) ?? []
+        const cat = this.points?.[0]?.point.category
+        return (cat ? `<b>${cat}</b><br/>` : '') + parts.join('<br/>')
+      },
+    },
     credits: { enabled: false },
   }
 

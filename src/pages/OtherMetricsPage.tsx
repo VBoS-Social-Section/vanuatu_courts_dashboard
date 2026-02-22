@@ -7,10 +7,11 @@ import type { StatRow } from '../types'
 interface Props {
   data: StatRow[]
   selectedYears: number[]
+  compareMode?: boolean
   getValue: (court: string, metric: string, year?: number) => number | null
 }
 
-export function OtherMetricsPage({ data, selectedYears, getValue }: Props) {
+export function OtherMetricsPage({ data, selectedYears, compareMode = false, getValue }: Props) {
   const lazy = selectedYears.length >= MANY_YEARS_THRESHOLD
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

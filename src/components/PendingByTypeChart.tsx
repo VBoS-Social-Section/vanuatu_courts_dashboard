@@ -13,7 +13,7 @@ interface Props {
 const PENDING_TYPES = ['Criminal', 'Civil', 'Violence', 'PI', 'Maintenance', 'Other'] as const
 const COLORS: Record<string, string> = {
   Criminal: '#422AFB', Civil: '#7551ff', Violence: '#6B7FFF', PI: '#4318FF',
-  Maintenance: '#a78bfa', Other: '#93c5fd',
+  Maintenance: '#7c3aed', Other: '#6366f1',
 }
 
 export const PendingByTypeChart = memo(function PendingByTypeChart({ data, selectedYears, getValue }: Props) {
@@ -61,7 +61,7 @@ export const PendingByTypeChart = memo(function PendingByTypeChart({ data, selec
       labels: { rotation: -45, style: { fontSize: '10px' } },
       crosshair: true,
     },
-    yAxis: { title: { text: 'Cases' }, gridLineDashStyle: 'Dot' },
+    yAxis: { title: { text: 'Pending cases' }, gridLineDashStyle: 'Dot' },
     plotOptions: { column: { borderWidth: 0, stacking: 'normal' } },
     series,
     legend: { enabled: true },

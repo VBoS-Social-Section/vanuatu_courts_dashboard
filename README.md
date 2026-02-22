@@ -11,6 +11,7 @@ A static, client-side React dashboard for Vanuatu Judiciary annual reports stati
 - **Chart units** – Tooltips and axes show units (cases, days, %, etc.)
 - **Methodology** – PDF links, extraction notes, assumptions, and glossary in one section
 - **Responsive layout** – Grid adapts to number of charts per page (2–3 columns)
+- **Mobile filter FAB** – Floating action button (bottom-right) opens a bottom sheet with courts and year filters on phones/tablets
 - **Performance** – Lazy-loading charts when 4+ years selected; memoization for smoother interaction
 
 ## Dashboard Sections

@@ -9,8 +9,8 @@ const COA_METRICS = [
   { key: 'CoA_Civil_Allowed', name: 'Civil Allowed', color: '#7551ff' },
   { key: 'CoA_Civil_Withdrawn', name: 'Civil Withdrawn', color: '#6B7FFF' },
   { key: 'CoA_Criminal_Dismissed', name: 'Criminal Dismissed', color: '#4318FF' },
-  { key: 'CoA_Criminal_Allowed', name: 'Criminal Allowed', color: '#a78bfa' },
-  { key: 'CoA_Criminal_Withdrawn', name: 'Criminal Withdrawn', color: '#93c5fd' },
+  { key: 'CoA_Criminal_Allowed', name: 'Criminal Allowed', color: '#7c3aed' },
+  { key: 'CoA_Criminal_Withdrawn', name: 'Criminal Withdrawn', color: '#6366f1' },
 ] as const
 
 interface Props {
@@ -60,7 +60,7 @@ export const CoAOutcomesChart = memo(function CoAOutcomesChart({ data, selectedY
   const options: Highcharts.Options = {
     chart: { type: 'column', height: 400 },
     xAxis: { categories: chartData.map((r) => String(r.year)), crosshair: true },
-    yAxis: { min: 0, max: 100, title: { text: '%' }, gridLineDashStyle: 'Dot' },
+    yAxis: { min: 0, max: 100, title: { text: 'Outcome share (%)' }, gridLineDashStyle: 'Dot' },
     plotOptions: { column: { borderWidth: 0, stacking: 'normal' } },
     series,
     legend: { enabled: true },

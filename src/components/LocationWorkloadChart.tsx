@@ -7,7 +7,7 @@ import type { StatRow } from '../types'
 const PROVINCES = ['Sanma', 'Shefa', 'Malampa', 'Tafea', 'Penama', 'Torba']
 const COLORS: Record<string, string> = {
   Sanma: '#422AFB', Shefa: '#7551ff', Malampa: '#6B7FFF', Tafea: '#4318FF',
-  Penama: '#a78bfa', Torba: '#93c5fd',
+  Penama: '#7c3aed', Torba: '#6366f1',
 }
 
 interface Props {
@@ -63,7 +63,7 @@ export const LocationWorkloadChart = memo(function LocationWorkloadChart({ data,
       labels: { rotation: -45, style: { fontSize: '10px' } },
       crosshair: true,
     },
-    yAxis: { title: { text: 'Filings' }, gridLineDashStyle: 'Dot' },
+    yAxis: { title: { text: 'Filings (cases)' }, gridLineDashStyle: 'Dot' },
     plotOptions: { column: { borderWidth: 0, stacking: 'normal' } },
     series,
     legend: { enabled: true },

@@ -3,7 +3,7 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CourtColorLegend } from './CourtColorLegend'
-import { getCourtColor, sortCourtsByOrder } from '@/lib/court-colors'
+import { getCourtColor, getCourtShortLabel, sortCourtsByOrder } from '@/lib/court-colors'
 import type { StatRow } from '../types'
 
 interface Props {
@@ -25,10 +25,11 @@ export const ChargeOrdersChart = memo(function ChargeOrdersChart({ data, selecte
   )
   const categories = chartData.map((r) => r.name)
   const series = courts.map((court) => ({
-    name: court,
+    name: getCourtShortLabel(court),
     type: 'column' as const,
     data: chartData.map((r) => (r.court === court ? r.ChargeOrders : null)),
     color: getCourtColor(court),
+    court,
   }))
 
   if (chartData.length === 0) {
@@ -51,11 +52,18 @@ export const ChargeOrdersChart = memo(function ChargeOrdersChart({ data, selecte
       labels: { rotation: -45, style: { fontSize: '10px' } },
       crosshair: true,
     },
-    yAxis: { title: { text: 'Orders' }, gridLineDashStyle: 'Dot' },
+    yAxis: { title: { text: 'Charge orders' }, gridLineDashStyle: 'Dot' },
     plotOptions: { column: { borderWidth: 0 } },
     series,
     legend: { enabled: true },
-    tooltip: { shared: false, valueSuffix: ' orders' },
+    tooltip: {
+      shared: false,
+      valueSuffix: ' orders',
+      formatter: function (this: Highcharts.TooltipFormatterContextObject) {
+        const court = (this.series.options as { court?: string }).court ?? this.series.name
+        return `<span style="color:${this.color}">●</span> ${court}: ${this.y} orders`
+      },
+    },
     credits: { enabled: false },
   }
 

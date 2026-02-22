@@ -23,9 +23,11 @@ interface Indicator {
 interface PageIndicatorsProps {
   data: StatRow[]
   activeTab: number
+  compareMode?: boolean
+  selectedYears?: number[]
 }
 
-export function PageIndicators({ data, activeTab }: PageIndicatorsProps) {
+export function PageIndicators({ data, activeTab, compareMode = false, selectedYears: _selectedYears }: PageIndicatorsProps) {
   const filings = data.filter((r) => r.Metric === 'Filings').reduce((sum, r) => sum + parseVal(r.Value), 0)
   const disposals = data.filter((r) => r.Metric === 'Disposals').reduce((sum, r) => sum + parseVal(r.Value), 0)
   const clearanceRows = data.filter((r) => r.Metric === 'ClearanceRate')
@@ -112,7 +114,7 @@ export function PageIndicators({ data, activeTab }: PageIndicatorsProps) {
             : 'N/A',
         subtitle: pendingYoY == null ? 'Needs at least two selected years for the comparison' : undefined,
         icon: pendingYoY?.netChange != null && pendingYoY.netChange < 0 ? TrendingDown : TrendingUp,
-        color: pendingYoY?.netChange != null && pendingYoY.netChange < 0 ? '#22c55e' : '#6B7FFF',
+        color: pendingYoY?.netChange != null && pendingYoY.netChange < 0 ? '#047857' : '#6B7FFF',
       },
       { label: 'Avg PDR', value: avgPDR.toFixed(2), icon: Scale, color: '#7551ff' },
       { label: 'Avg Pending Age (%)', value: `${avgPendingAge.toFixed(1)}%`, icon: FileText, color: '#6B7FFF' },
@@ -149,7 +151,7 @@ export function PageIndicators({ data, activeTab }: PageIndicatorsProps) {
             : 'N/A',
         subtitle: dvYoY == null ? 'Needs at least two selected years for the comparison' : undefined,
         icon: dvYoY?.netChange != null && dvYoY.netChange > 0 ? TrendingUp : TrendingDown,
-        color: dvYoY?.netChange != null && dvYoY.netChange > 0 ? '#dc2626' : '#22c55e',
+        color: dvYoY?.netChange != null && dvYoY.netChange > 0 ? '#dc2626' : '#047857',
       },
     ],
   }
@@ -157,8 +159,9 @@ export function PageIndicators({ data, activeTab }: PageIndicatorsProps) {
   const cards = indicatorsByPage[activeTab] ?? indicatorsByPage[0]
 
   return (
-    <div className="mb-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-      {cards.map((card) => (
+    <div className="mb-6">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {cards.map((card) => (
         <div key={card.label} className={CARD_STYLE}>
           <div className={ICON_BOX} style={{ backgroundColor: `${card.color}15` }}>
             <card.icon className="size-6" style={{ color: card.color }} strokeWidth={1.5} />
@@ -190,6 +193,12 @@ export function PageIndicators({ data, activeTab }: PageIndicatorsProps) {
           </div>
         </div>
       ))}
+      </div>
+      {activeTab === 4 && (
+        <p className="mt-3 text-xs text-muted-foreground">
+          Island Court has no outcome data (Guilty, Not Guilty, Dismissed, etc.) — outcomes are for CoA, SC, and MC only.
+        </p>
+      )}
     </div>
   )
 }

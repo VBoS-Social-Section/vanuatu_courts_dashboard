@@ -5,9 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { StatRow } from '../types'
 
 const METRICS = [
-  { key: 'Pending_WithFutureListing', name: 'With Future Listing', color: '#22c55e' },
-  { key: 'Pending_UnderCaseMgmt', name: 'Under Case Mgmt', color: '#7551ff' },
-  { key: 'Pending_NoFutureDate', name: 'No Future Date', color: '#ef4444' },
+  { key: 'Pending_WithFutureListing', name: 'Future listing', fullName: 'With Future Listing', color: '#047857' },
+  { key: 'Pending_UnderCaseMgmt', name: 'Case mgmt', fullName: 'Under Case Mgmt', color: '#7551ff' },
+  { key: 'Pending_NoFutureDate', name: 'No date', fullName: 'No Future Date', color: '#ef4444' },
 ] as const
 
 interface Props {
@@ -48,8 +48,9 @@ export const PendingListedStatusChart = memo(function PendingListedStatusChart({
     )
   }
 
-  const series = METRICS.map(({ key, name, color }) => ({
+  const series = METRICS.map(({ key, name, fullName, color }) => ({
     name,
+    fullName,
     data: chartData.map((r) => (r[key] as number) ?? 0),
     type: 'column' as const,
     color,
@@ -63,11 +64,22 @@ export const PendingListedStatusChart = memo(function PendingListedStatusChart({
       labels: { rotation: -45, style: { fontSize: '10px' } },
       crosshair: true,
     },
-    yAxis: { min: 0, max: 100, title: { text: '%' }, gridLineDashStyle: 'Dot' },
+    yAxis: { min: 0, max: 100, title: { text: 'Share (%)' }, gridLineDashStyle: 'Dot' },
     plotOptions: { column: { borderWidth: 0, stacking: 'normal' } },
     series,
     legend: { enabled: true },
-    tooltip: { shared: true, valueSuffix: '%' },
+    tooltip: {
+      shared: true,
+      formatter: function (this: Highcharts.TooltipFormatterContextObject) {
+        if (!this.points?.length) return ''
+        const header = String(this.x ?? '')
+        const lines = this.points.map((p) => {
+          const full = (p.series.options as { fullName?: string }).fullName ?? p.series.name
+          return `<span style="color:${p.color}">●</span> ${full}: ${p.y}%`
+        })
+        return `<b>${header}</b><br/>${lines.join('<br/>')}`
+      },
+    },
     credits: { enabled: false },
   }
 

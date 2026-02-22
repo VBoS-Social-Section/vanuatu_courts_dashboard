@@ -7,7 +7,7 @@ import type { StatRow } from '../types'
 const CASE_TYPES = ['Total', 'Criminal', 'Civil', 'PI', 'Maintenance', 'Violence'] as const
 const COLORS: Record<string, string> = {
   Total: '#422AFB', Criminal: '#7551ff', Civil: '#6B7FFF', PI: '#4318FF',
-  Maintenance: '#a78bfa', Violence: '#93c5fd',
+  Maintenance: '#7c3aed', Violence: '#6366f1',
 }
 
 interface Props {
@@ -67,7 +67,7 @@ export const CaseWorkloadByTypeChart = memo(function CaseWorkloadByTypeChart({ d
       labels: { rotation: -45, style: { fontSize: '10px' } },
       crosshair: true,
     },
-    yAxis: { title: { text: 'Filings' }, gridLineDashStyle: 'Dot' },
+    yAxis: { title: { text: 'Filings (cases)' }, gridLineDashStyle: 'Dot' },
     plotOptions: { column: { borderWidth: 0, stacking: 'normal' } },
     series,
     legend: { enabled: true },

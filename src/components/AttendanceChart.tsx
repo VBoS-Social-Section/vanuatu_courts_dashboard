@@ -3,7 +3,7 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CourtColorLegend } from './CourtColorLegend'
-import { getCourtColor, sortCourtsByOrder } from '@/lib/court-colors'
+import { getCourtColor, getCourtShortLabel, sortCourtsByOrder } from '@/lib/court-colors'
 import type { StatRow } from '../types'
 
 const ATTENDANCE_METRICS = ['AttendanceCriminal', 'AttendanceCivil', 'AttendanceEnforcement'] as const
@@ -47,22 +47,25 @@ export const AttendanceChart = memo(function AttendanceChart({ data, selectedYea
   const categories = seriesData.map((r) => r.name)
   const series = courts.flatMap((court) => [
     {
-      name: `${court} – Criminal`,
+      name: `${getCourtShortLabel(court)} Criminal`,
       data: seriesData.map((r) => (r.court === court ? r.Criminal : null)),
       type: 'column' as const,
       color: getCourtColor(court),
+      court,
     },
     {
-      name: `${court} – Civil`,
+      name: `${getCourtShortLabel(court)} Civil`,
       data: seriesData.map((r) => (r.court === court ? r.Civil : null)),
       type: 'column' as const,
       color: getCourtColor(court),
+      court,
     },
     {
-      name: `${court} – Enforcement`,
+      name: `${getCourtShortLabel(court)} Enforcement`,
       data: seriesData.map((r) => (r.court === court ? r.Enforcement : null)),
       type: 'column' as const,
       color: getCourtColor(court),
+      court,
     },
   ])
 
@@ -73,11 +76,23 @@ export const AttendanceChart = memo(function AttendanceChart({ data, selectedYea
       labels: { rotation: -45, style: { fontSize: '10px' } },
       crosshair: true,
     },
-    yAxis: { title: { text: '%' }, gridLineDashStyle: 'Dot' },
+    yAxis: { title: { text: 'Attendance rate (%)' }, gridLineDashStyle: 'Dot' },
     plotOptions: { column: { borderWidth: 0 } },
     series,
     legend: { enabled: true },
-    tooltip: { shared: true, valueSuffix: '%' },
+    tooltip: {
+      shared: true,
+      valueSuffix: '%',
+      formatter: function (this: Highcharts.TooltipFormatterContextObject) {
+        const parts = this.points?.map((p) => {
+          const court = (p.series.options as { court?: string }).court ?? ''
+          const type = p.series.name?.split(' ').pop() ?? ''
+          return `<span style="color:${p.color}">●</span> ${court} – ${type}: ${p.y}%`
+        }) ?? []
+        const cat = this.points?.[0]?.point.category
+        return (cat ? `<b>${cat}</b><br/>` : '') + parts.join('<br/>')
+      },
+    },
     credits: { enabled: false },
   }
 

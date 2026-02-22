@@ -4,6 +4,7 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTable } from '@/components/DataTable'
+import { NaCell } from '@/components/NaCell'
 import type { StatRow } from '../types'
 
 interface OutcomeRow {
@@ -26,8 +27,8 @@ const OUTCOME_METRICS = [
 
 const BAR_COLORS: Record<string, string> = {
   Criminal_Guilty: '#422AFB', Criminal_NotGuilty: '#7551ff', Criminal_Withdrawn: '#6B7FFF', Criminal_Dismissed: '#4318FF',
-  Civil_Guilty: '#a78bfa', Civil_NotGuilty: '#93c5fd', Civil_Withdrawn: '#c4b5fd', Civil_Committed: '#bfdbfe', Civil_Dismissed: '#e0e7ff',
-  PI_Guilty: '#818cf8', PI_NotGuilty: '#60a5fa', PI_Withdrawn: '#38bdf8', PI_Committed: '#22d3ee', PI_Dismissed: '#a5f3fc',
+  Civil_Guilty: '#7c3aed', Civil_NotGuilty: '#6366f1', Civil_Withdrawn: '#4f46e5', Civil_Committed: '#2563eb', Civil_Dismissed: '#4338ca',
+  PI_Guilty: '#6366f1', PI_NotGuilty: '#2563eb', PI_Withdrawn: '#0284c7', PI_Committed: '#0891b2', PI_Dismissed: '#0e7490',
 }
 
 const CaseOutcomesTableInner = function CaseOutcomesTable({ getRowsByMetric, selectedYears }: Props) {
@@ -74,7 +75,7 @@ const CaseOutcomesTableInner = function CaseOutcomesTable({ getRowsByMetric, sel
       { accessorKey: 'court', header: 'Court' },
       { accessorKey: 'year', header: 'Year', meta: { className: 'text-right' }, cell: ({ getValue }) => <span className="block text-right">{getValue()}</span> },
       { accessorKey: 'metric', header: 'Metric' },
-      { accessorKey: 'value', header: 'Value (%)', meta: { className: 'text-right' }, cell: ({ getValue }) => <span className="block text-right">{getValue()}</span> },
+      { accessorKey: 'value', header: 'Value (%)', meta: { className: 'text-right' }, cell: ({ getValue }) => <NaCell value={getValue() as string | number | null} suffix="%" /> },
     ],
     []
   )

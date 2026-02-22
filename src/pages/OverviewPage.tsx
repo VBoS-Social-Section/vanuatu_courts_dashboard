@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
-import { Clock, Scale, TrendingUp, FileText, Users, Layers } from 'lucide-react'
+import { Clock, Scale, TrendingUp, FileText, Users, Layers, ArrowUp, ArrowDown } from 'lucide-react'
 import { Sparkline } from '../components/Sparkline'
+import { DVSummaryCard } from '../components/DVSummaryCard'
 import type { StatRow } from '../types'
 
 function parseVal(v: string): number {
@@ -12,6 +13,7 @@ function parseVal(v: string): number {
 interface Props {
   data: StatRow[]
   selectedYears: number[]
+  compareMode?: boolean
   getValue: (court: string, metric: string, year?: number) => number | null
 }
 
@@ -22,12 +24,13 @@ const CARD_COLORS = {
   dv: '#a855f7',
   gender: '#4318FF',
   filings: '#6366f1',
-  disposals: '#22c55e',
-  netPending: '#0ea5e9',
+  disposals: '#047857',   // emerald-700 (WCAG)
+  netPending: '#0284c7',  // sky-600 (WCAG)
 } as const
 
-export function OverviewPage({ data, selectedYears, getValue }: Props) {
+export function OverviewPage({ data, selectedYears, compareMode = false, getValue }: Props) {
   const sortedYears = useMemo(() => [...selectedYears].sort((a, b) => a - b), [selectedYears])
+  const [yearA, yearB] = compareMode && sortedYears.length >= 2 ? [sortedYears[0], sortedYears[1]] : [null, null]
   const courts = useMemo(() => [...new Set(data.map((r) => r.Court))], [data])
 
   // Total Pending + sparkline data
@@ -58,7 +61,6 @@ export function OverviewPage({ data, selectedYears, getValue }: Props) {
   const dvByYear = useMemo(() => sortedYears.map(
     (y) => data.filter((r) => r.Metric === 'DV_Filings' && r.Year === String(y)).reduce((s, r) => s + parseVal(r.Value), 0)
   ), [sortedYears, data])
-  const totalDV = dvByYear.reduce((a, b) => a + b, 0)
 
   // Gender Avg
   const avgMale = useMemo(() => {
@@ -94,20 +96,69 @@ export function OverviewPage({ data, selectedYears, getValue }: Props) {
         })()
       : null
 
-  const cards = [
+  // YoY change helper (prev, curr) -> { pct, direction }; null if flat or single year
+  const yoy = (arr: number[]) =>
+    arr.length >= 2
+      ? (() => {
+          const prev = arr[arr.length - 2]
+          const curr = arr[arr.length - 1]
+          const pct = prev > 0 ? (100 * (curr - prev)) / prev : (curr > prev ? 100 : 0)
+          const dir = curr > prev ? 'up' : curr < prev ? 'down' : 'flat'
+          return dir === 'flat' ? null : { pct, dir }
+        })()
+      : null
+
+  const getValForYear = (y: number) => ({
+    pending: data.filter((r) => r.Metric === 'Pending' && r.Year === String(y)).reduce((s, r) => s + parseVal(r.Value), 0),
+    clearance: (() => {
+      const rows = data.filter((r) => r.Metric === 'ClearanceRate' && r.Year === String(y))
+      return rows.length > 0 ? rows.reduce((s, r) => s + parseVal(r.Value), 0) / rows.length : 0
+    })(),
+    filings: data.filter((r) => r.Metric === 'Filings' && r.Year === String(y)).reduce((s, r) => s + parseVal(r.Value), 0),
+    disposals: data.filter((r) => r.Metric === 'Disposals' && r.Year === String(y)).reduce((s, r) => s + parseVal(r.Value), 0),
+    dv: data.filter((r) => r.Metric === 'DV_Filings' && r.Year === String(y)).reduce((s, r) => s + parseVal(r.Value), 0),
+  })
+
+  const cards: Array<{
+    label: string
+    value: string
+    valueCompare?: string
+    icon: typeof Clock
+    color: string
+    sparklineData: number[] | null
+    yoy: { pct: number; dir: 'up' | 'down' } | null
+    yoyGood: 'up' | 'down' | null
+    subtitle?: string
+  }> = [
     {
       label: 'Total Pending',
       value: totalPending.toLocaleString(),
+      valueCompare: yearA != null && yearB != null ? (() => {
+        const a = getValForYear(yearA).pending
+        const b = getValForYear(yearB).pending
+        const pct = a > 0 ? (100 * (b - a)) / a : 0
+        return `${yearA}: ${a.toLocaleString()} → ${yearB}: ${b.toLocaleString()} (${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%)`
+      })() : undefined,
       icon: Clock,
       color: CARD_COLORS.pending,
       sparklineData: pendingByYear,
+      yoy: yoy(pendingByYear),
+      yoyGood: 'down', // lower pending is good
     },
     {
       label: 'Clearance Rate Trend',
       value: `${avgClearance.toFixed(1)}%`,
+      valueCompare: yearA != null && yearB != null ? (() => {
+        const a = getValForYear(yearA).clearance
+        const b = getValForYear(yearB).clearance
+        const pct = a > 0 ? (100 * (b - a)) / a : 0
+        return `${yearA}: ${a.toFixed(1)}% → ${yearB}: ${b.toFixed(1)}% (${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%)`
+      })() : undefined,
       icon: Scale,
       color: CARD_COLORS.clearance,
       sparklineData: clearanceByYear,
+      yoy: yoy(clearanceByYear),
+      yoyGood: 'up', // higher clearance is good
     },
     {
       label: 'Top 3 Backlog Courts',
@@ -115,17 +166,11 @@ export function OverviewPage({ data, selectedYears, getValue }: Props) {
       icon: Layers,
       color: CARD_COLORS.backlog,
       sparklineData: null,
+      yoy: null,
       subtitle:
         pendingByCourt.length > 0
           ? pendingByCourt.map((x) => `${x.court.replace(/ Court$/, '')}: ${x.pending.toLocaleString()}`).join(' · ')
           : undefined,
-    },
-    {
-      label: 'DV Trend',
-      value: totalDV.toLocaleString(),
-      icon: FileText,
-      color: CARD_COLORS.dv,
-      sparklineData: dvByYear.length > 0 ? dvByYear : null,
     },
     {
       label: 'Gender Balance',
@@ -133,20 +178,37 @@ export function OverviewPage({ data, selectedYears, getValue }: Props) {
       icon: Users,
       color: CARD_COLORS.gender,
       sparklineData: null,
+      yoy: null,
     },
     {
       label: 'Total Filings',
       value: totalFilings.toLocaleString(),
+      valueCompare: yearA != null && yearB != null ? (() => {
+        const a = getValForYear(yearA).filings
+        const b = getValForYear(yearB).filings
+        const pct = a > 0 ? (100 * (b - a)) / a : 0
+        return `${yearA}: ${a.toLocaleString()} → ${yearB}: ${b.toLocaleString()} (${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%)`
+      })() : undefined,
       icon: TrendingUp,
       color: CARD_COLORS.filings,
       sparklineData: filingsByYear,
+      yoy: yoy(filingsByYear),
+      yoyGood: null,
     },
     {
       label: 'Total Disposals',
       value: totalDisposals.toLocaleString(),
+      valueCompare: yearA != null && yearB != null ? (() => {
+        const a = getValForYear(yearA).disposals
+        const b = getValForYear(yearB).disposals
+        const pct = a > 0 ? (100 * (b - a)) / a : 0
+        return `${yearA}: ${a.toLocaleString()} → ${yearB}: ${b.toLocaleString()} (${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%)`
+      })() : undefined,
       icon: TrendingUp,
       color: CARD_COLORS.disposals,
       sparklineData: disposalsByYear,
+      yoy: yoy(disposalsByYear),
+      yoyGood: 'up', // higher disposals is good
     },
     {
       label: 'Net Pending (YoY)',
@@ -155,10 +217,13 @@ export function OverviewPage({ data, selectedYears, getValue }: Props) {
           ? `${pendingYoY.net >= 0 ? '+' : ''}${pendingYoY.net.toLocaleString()} (${pendingYoY.pct >= 0 ? '+' : ''}${pendingYoY.pct.toFixed(1)}%)`
           : 'Needs 2+ years',
       icon: TrendingUp,
-      color: pendingYoY?.net != null && pendingYoY.net < 0 ? '#22c55e' : CARD_COLORS.netPending,
+      color: pendingYoY?.net != null && pendingYoY.net < 0 ? '#047857' : CARD_COLORS.netPending,
       sparklineData: pendingByYear.length >= 2 ? pendingByYear : null,
+      yoy: null, // already shows YoY in value
     },
   ]
+
+  const hasDVData = dvByYear.length > 0 && dvByYear.some((v) => v > 0)
 
   return (
     <div className="space-y-6">
@@ -167,6 +232,9 @@ export function OverviewPage({ data, selectedYears, getValue }: Props) {
           This dashboard summarizes key performance indicators from the Vanuatu Judiciary across the Court of Appeal, Supreme Court, Magistrates Court, and Island Court. Use the cards below to scan caseload (pending, filings, disposals), clearance and backlog trends, domestic violence protection orders, and gender representation. Select years and courts in the sidebar to filter the data. For detailed breakdowns, see the Pending Cases, Workload, Performance, Outcomes, and Other Metrics pages.
         </p>
       </div>
+      {hasDVData && (
+        <DVSummaryCard dvByYear={dvByYear} sortedYears={sortedYears} />
+      )}
       <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {cards.map((card) => (
         <div
@@ -183,7 +251,11 @@ export function OverviewPage({ data, selectedYears, getValue }: Props) {
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-medium text-muted-foreground">{card.label}</p>
-                <p className="mt-0.5 truncate text-xl font-bold text-foreground">{card.value}</p>
+                {compareMode && card.valueCompare ? (
+                  <p className="mt-0.5 text-sm font-bold leading-tight text-foreground">{card.valueCompare}</p>
+                ) : (
+                  <p className="mt-0.5 truncate text-xl font-bold text-foreground">{card.value}</p>
+                )}
                 {card.subtitle && (
                   <p className="mt-1 line-clamp-2 text-[11px] leading-tight text-muted-foreground" title={card.subtitle}>
                     {card.subtitle}
@@ -191,9 +263,25 @@ export function OverviewPage({ data, selectedYears, getValue }: Props) {
                 )}
               </div>
             </div>
-            {card.sparklineData && card.sparklineData.length >= 2 && (
-              <div className="shrink-0">
-                <Sparkline data={card.sparklineData} width={80} height={36} color={card.color} strokeWidth={2} />
+            {(card.sparklineData?.length >= 2 || card.yoy) && (
+              <div className="flex shrink-0 items-center gap-1">
+                {card.yoy && (
+                  <span
+                    title={`YoY: ${card.yoy.pct >= 0 ? '+' : ''}${card.yoy.pct.toFixed(1)}%`}
+                    className={
+                      card.yoyGood != null
+                        ? card.yoy.dir === card.yoyGood
+                          ? 'text-emerald-600'
+                          : 'text-rose-600'
+                        : 'text-muted-foreground'
+                    }
+                  >
+                    {card.yoy.dir === 'up' ? <ArrowUp className="size-3.5" strokeWidth={2.5} /> : <ArrowDown className="size-3.5" strokeWidth={2.5} />}
+                  </span>
+                )}
+                {card.sparklineData && card.sparklineData.length >= 2 && (
+                  <Sparkline data={card.sparklineData} width={80} height={36} color={card.color} strokeWidth={2} />
+                )}
               </div>
             )}
           </div>

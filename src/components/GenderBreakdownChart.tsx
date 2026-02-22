@@ -3,7 +3,7 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CourtColorLegend } from './CourtColorLegend'
-import { getCourtColor, getCourtColorLight, sortCourtsByOrder } from '@/lib/court-colors'
+import { getCourtColor, getCourtColorLight, getCourtShortLabel, sortCourtsByOrder } from '@/lib/court-colors'
 import type { StatRow } from '../types'
 
 interface Props {
@@ -27,18 +27,20 @@ export const GenderBreakdownChart = memo(function GenderBreakdownChart({ data, s
 
   const series: Highcharts.SeriesColumnOptions[] = courts.flatMap((court) => [
     {
-      name: `${court} – Male`,
+      name: `${getCourtShortLabel(court)} Male`,
       data: seriesData.map((r) => (r.court === court ? r.Male : null)),
       type: 'column',
       color: getCourtColor(court),
       stack: 'gender',
+      court,
     },
     {
-      name: `${court} – Female`,
+      name: `${getCourtShortLabel(court)} Female`,
       data: seriesData.map((r) => (r.court === court ? r.Female : null)),
       type: 'column',
       color: getCourtColorLight(court),
       stack: 'gender',
+      court,
     },
   ])
 
@@ -49,11 +51,27 @@ export const GenderBreakdownChart = memo(function GenderBreakdownChart({ data, s
       labels: { rotation: -45, style: { fontSize: '10px' } },
       crosshair: true,
     },
-    yAxis: { min: 0, max: 100, title: { text: '%' }, gridLineDashStyle: 'Dot' },
+    yAxis: { min: 0, max: 100, title: { text: 'Percentage (%)' }, gridLineDashStyle: 'Dot' },
     plotOptions: { column: { borderWidth: 0, stacking: 'normal' } },
     series,
     legend: { enabled: true },
-    tooltip: { shared: true, valueSuffix: '%' },
+    tooltip: {
+      shared: true,
+      valueSuffix: '%',
+      formatter: function (this: Highcharts.TooltipFormatterContextObject) {
+        const lines: string[] = []
+        const pt = this.points?.[0]
+        const cat = pt?.point.category as string
+        if (cat) lines.push(`<b>${cat}</b>`)
+        this.points?.forEach((p) => {
+          const court = (p.series.options as { court?: string }).court ?? ''
+          const suffix = p.series.name?.split(' ').pop() ?? ''
+          const label = court ? `${court} – ${suffix}` : p.series.name
+          if (p.y != null) lines.push(`<span style="color:${p.color}">●</span> ${label}: ${p.y}%`)
+        })
+        return lines.join('<br/>')
+      },
+    },
     credits: { enabled: false },
   }
 

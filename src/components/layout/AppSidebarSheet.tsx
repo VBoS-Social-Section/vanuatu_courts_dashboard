@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Menu } from 'lucide-react'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
-import { CourtsFilterDropdown } from '@/components/CourtsFilterDropdown'
-import { Slider } from '@/components/ui/slider'
 import { Separator } from '@/components/ui/separator'
 
 const DATA_ROUTES = [
@@ -30,24 +28,12 @@ function formatLastUpdated(iso: string | null): string {
 interface AppSidebarSheetProps {
   activeTab: number
   onTabChange: (tab: number) => void
-  years: number[]
-  selectedYears: number[]
-  onYearsChange: (years: number[]) => void
-  courts: readonly string[]
-  selectedCourts: string[]
-  onCourtsChange: (courts: string[]) => void
   lastUpdated?: string | null
 }
 
 export function AppSidebarSheet({
   activeTab,
   onTabChange,
-  years,
-  selectedYears,
-  onYearsChange,
-  courts,
-  selectedCourts,
-  onCourtsChange,
   lastUpdated: propLastUpdated,
 }: AppSidebarSheetProps) {
   const [open, setOpen] = useState(false)
@@ -62,15 +48,6 @@ export function AppSidebarSheet({
       .catch(() => {})
   }, [propLastUpdated])
 
-  const rawMin = years.indexOf(selectedYears[0] ?? years[0] ?? 0)
-  const rawMax = years.indexOf(selectedYears[selectedYears.length - 1] ?? years[years.length - 1] ?? 0)
-  const yearMinIdx = years.length > 0 ? Math.max(0, rawMin >= 0 ? rawMin : 0) : 0
-  const yearMaxIdx = years.length > 0 ? Math.min(years.length - 1, rawMax >= 0 ? rawMax : years.length - 1) : 0
-  const sliderValue: [number, number] = [yearMinIdx, Math.max(yearMinIdx, yearMaxIdx)]
-  const onSliderChange = (v: number[]) => {
-    const [lo, hi] = [Math.min(v[0], v[1]), Math.max(v[0], v[1])]
-    onYearsChange(years.slice(lo, hi + 1))
-  }
   const handleSelect = (i: number) => {
     onTabChange(i)
     setOpen(false)
@@ -88,6 +65,8 @@ export function AppSidebarSheet({
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[260px] p-0">
+        <SheetTitle className="sr-only">Navigation menu</SheetTitle>
+        <SheetDescription className="sr-only">Choose a page to view. Use the filter button to change courts and years.</SheetDescription>
         <div className="flex h-full flex-col bg-white">
           <div className="flex h-[70px] items-center border-b border-border/60 px-5">
             <span className="text-xl font-bold tracking-tight" style={{ color: '#422AFB' }}>
@@ -115,40 +94,9 @@ export function AppSidebarSheet({
             >
               {METHODOLOGY_ROUTE}
             </button>
-            <Separator className="my-5" />
-            <div className="space-y-3">
-              <p className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Courts</p>
-              <CourtsFilterDropdown
-                courts={courts}
-                selectedCourts={selectedCourts}
-                onCourtsChange={onCourtsChange}
-              />
-              <p className="px-2 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Years</p>
-              <div className="space-y-2 px-2">
-                <p className="text-sm font-medium">
-                  {selectedYears.length ? selectedYears.sort((a, b) => a - b).join(' – ') : 'Select years'}
-                </p>
-                {years.length > 1 && (
-                  <>
-                    <Slider
-                      min={0}
-                      max={years.length - 1}
-                      step={1}
-                      value={sliderValue}
-                      onValueChange={onSliderChange}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{years[0]}</span>
-                      <span>{years[years.length - 1]}</span>
-                    </div>
-                  </>
-                )}
-                {years.length <= 1 && (
-                  <p className="text-xs text-muted-foreground">Loading years…</p>
-                )}
-              </div>
-            </div>
+            <p className="mt-4 px-2 text-xs text-muted-foreground">
+              Use the filter button below to change courts and years.
+            </p>
           </nav>
           <div className="p-4">
             <div

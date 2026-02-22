@@ -3,6 +3,8 @@ import Papa from 'papaparse'
 import type { StatRow } from './types'
 import { AppSidebar } from './components/layout/AppSidebar'
 import { AppSidebarSheet } from './components/layout/AppSidebarSheet'
+import { MobileFilterFAB } from './components/layout/MobileFilterFAB'
+import { HeroBanner } from './components/HeroBanner'
 import { AppFooter } from './components/layout/AppFooter'
 import { PageIndicators } from './components/PageIndicators'
 import { OverviewPage } from './pages/OverviewPage'
@@ -67,6 +69,7 @@ export default function App() {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
   const [selectedYears, setSelectedYears] = useState<number[]>([])
   const [selectedCourts, setSelectedCourts] = useState<string[]>(() => [...COURTS])
+  const [compareMode, setCompareMode] = useState(false)
   const [data, setData] = useState<StatRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -135,6 +138,8 @@ export default function App() {
         years={years}
         selectedYears={selectedYears}
         onYearsChange={setSelectedYears}
+        compareMode={compareMode}
+        onCompareModeChange={setCompareMode}
         courts={COURTS}
         selectedCourts={selectedCourts}
         onCourtsChange={setSelectedCourts}
@@ -146,19 +151,14 @@ export default function App() {
         className={`flex flex-1 flex-col transition-[padding] duration-200 ${sidebarOpen ? 'lg:pl-[260px]' : 'lg:pl-0'}`}
       >
         <main className="flex-1 p-4 lg:p-6">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="flex shrink-0 items-center gap-2">
+          <div className="mb-6 flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex shrink-0 items-center gap-2">
               <div className="lg:hidden">
                 <AppSidebarSheet
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                years={years}
-                selectedYears={selectedYears}
-                onYearsChange={setSelectedYears}
-                courts={COURTS}
-                selectedCourts={selectedCourts}
-                onCourtsChange={setSelectedCourts}
-                lastUpdated={lastUpdated}
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                  lastUpdated={lastUpdated}
                 />
               </div>
               <Button
@@ -171,14 +171,17 @@ export default function App() {
                 {sidebarOpen ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}
               </Button>
             </div>
-            <div>
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <span>Pages</span>
-                <ChevronRight className="size-4" />
-                <span>{SECTION_NAMES[activeTab]}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <span>Pages</span>
+                  <ChevronRight className="size-4" />
+                  <span>{SECTION_NAMES[activeTab]}</span>
+                </div>
+                <h1 className="text-2xl font-bold text-foreground">{SECTION_NAMES[activeTab]}</h1>
               </div>
-              <h1 className="text-2xl font-bold text-foreground">{SECTION_NAMES[activeTab]}</h1>
+              <HeroBanner lastUpdated={lastUpdated} placement="icon" />
             </div>
+            <HeroBanner lastUpdated={lastUpdated} placement="banner" />
           </div>
 
           {error && (
@@ -221,14 +224,14 @@ export default function App() {
 
           {!loading && data.length > 0 && activeTab < 6 && (
             <>
-              {activeTab !== 0 && <PageIndicators data={filteredData} activeTab={activeTab} />}
+              {activeTab !== 0 && <PageIndicators data={filteredData} activeTab={activeTab} compareMode={compareMode} selectedYears={selectedYears} />}
               <div className="grid gap-6 xl:grid-cols-1">
-                {activeTab === 0 && <OverviewPage data={filteredData} selectedYears={selectedYears} getValue={getValue} />}
-                {activeTab === 1 && <PendingCasesPage data={filteredData} selectedYears={selectedYears} getValue={getValue} getRowsByMetric={getRowsByMetric} />}
-                {activeTab === 2 && <WorkloadPage data={filteredData} selectedYears={selectedYears} getValue={getValue} />}
-                {activeTab === 3 && <PerformancePage data={filteredData} selectedYears={selectedYears} getValue={getValue} />}
-                {activeTab === 4 && <OutcomesPage data={filteredData} selectedYears={selectedYears} getValue={getValue} getRowsByMetric={getRowsByMetric} />}
-                {activeTab === 5 && <OtherMetricsPage data={filteredData} selectedYears={selectedYears} getValue={getValue} />}
+                {activeTab === 0 && <OverviewPage data={filteredData} selectedYears={selectedYears} compareMode={compareMode} getValue={getValue} />}
+                {activeTab === 1 && <PendingCasesPage data={filteredData} selectedYears={selectedYears} compareMode={compareMode} getValue={getValue} getRowsByMetric={getRowsByMetric} />}
+                {activeTab === 2 && <WorkloadPage data={filteredData} selectedYears={selectedYears} compareMode={compareMode} getValue={getValue} />}
+                {activeTab === 3 && <PerformancePage data={filteredData} selectedYears={selectedYears} compareMode={compareMode} getValue={getValue} />}
+                {activeTab === 4 && <OutcomesPage data={filteredData} selectedYears={selectedYears} compareMode={compareMode} getValue={getValue} getRowsByMetric={getRowsByMetric} />}
+                {activeTab === 5 && <OtherMetricsPage data={filteredData} selectedYears={selectedYears} compareMode={compareMode} getValue={getValue} />}
               </div>
             </>
           )}
@@ -240,6 +243,17 @@ export default function App() {
         </main>
         <AppFooter />
       </div>
+
+      <MobileFilterFAB
+        years={years}
+        selectedYears={selectedYears}
+        onYearsChange={setSelectedYears}
+        compareMode={compareMode}
+        onCompareModeChange={setCompareMode}
+        courts={COURTS}
+        selectedCourts={selectedCourts}
+        onCourtsChange={setSelectedCourts}
+      />
     </div>
   )
 }

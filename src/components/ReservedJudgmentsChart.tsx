@@ -4,15 +4,16 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTable } from '@/components/DataTable'
+import { NaCell } from '@/components/NaCell'
 import { CourtColorLegend } from './CourtColorLegend'
-import { getCourtColor, sortCourtsByOrder } from '@/lib/court-colors'
+import { getCourtColor, getCourtShortLabel, sortCourtsByOrder } from '@/lib/court-colors'
 import type { StatRow } from '../types'
 
 interface ReservedRow {
   court: string
   year: number
   name: string
-  ReservedJudgments: number
+  ReservedJudgments: number | null
 }
 
 interface Props {
@@ -28,10 +29,9 @@ export const ReservedJudgmentsChart = memo(function ReservedJudgmentsChart({ dat
   const tableData = useMemo(
     () =>
       courts.flatMap((court) =>
-        sortedYears.flatMap((year) => {
+        sortedYears.map((year) => {
           const v = getValue(court, 'ReservedJudgments', year)
-          if (v == null) return []
-          return [{ court, year, name: `${court} ${year}`, ReservedJudgments: v }]
+          return { court, year, name: `${court} ${year}`, ReservedJudgments: v }
         })
       ),
     [courts, sortedYears, getValue]
@@ -57,7 +57,7 @@ export const ReservedJudgmentsChart = memo(function ReservedJudgmentsChart({ dat
         },
       },
       { accessorKey: 'year', header: 'Year', meta: { className: 'text-right' }, cell: ({ getValue }) => <span className="block text-right">{getValue()}</span> },
-      { accessorKey: 'ReservedJudgments', header: 'Reserved', meta: { className: 'text-right' }, cell: ({ getValue }) => <span className="block text-right">{getValue()}</span> },
+      { accessorKey: 'ReservedJudgments', header: 'Reserved', meta: { className: 'text-right' }, cell: ({ getValue }) => <NaCell value={getValue() as number | null} /> },
     ],
     []
   )
@@ -76,10 +76,11 @@ export const ReservedJudgmentsChart = memo(function ReservedJudgmentsChart({ dat
   }
 
   const series = courts.map((court) => ({
-    name: court,
+    name: getCourtShortLabel(court),
     type: 'column' as const,
-    data: tableData.map((r) => (r.court === court ? r.ReservedJudgments : null)),
+    data: tableData.map((r) => (r.court === court ? (r.ReservedJudgments ?? null) : null)),
     color: getCourtColor(court),
+    court,
   }))
   const options: Highcharts.Options = {
     chart: { type: 'column', height: 300 },
@@ -88,11 +89,19 @@ export const ReservedJudgmentsChart = memo(function ReservedJudgmentsChart({ dat
       labels: { rotation: -45, style: { fontSize: '10px' } },
       crosshair: true,
     },
-    yAxis: { title: { text: 'Cases' }, gridLineDashStyle: 'Dot' },
+    yAxis: { title: { text: 'Reserved judgments (cases)' }, gridLineDashStyle: 'Dot' },
     plotOptions: { column: { borderWidth: 0 } },
     series,
     legend: { enabled: true },
-    tooltip: { shared: false, valueSuffix: ' cases' },
+    tooltip: {
+      shared: false,
+      valueSuffix: ' cases',
+      formatter: function (this: Highcharts.TooltipFormatterContextObject) {
+        const court = (this.series.options as { court?: string }).court ?? this.series.name
+        const val = this.y != null ? `${this.y} cases` : '—'
+        return `<span style="color:${this.color}">●</span> ${court}: ${val}`
+      },
+    },
     credits: { enabled: false },
   }
 

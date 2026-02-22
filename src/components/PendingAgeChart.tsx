@@ -4,6 +4,7 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTable } from '@/components/DataTable'
+import { NaCell } from '@/components/NaCell'
 import { CourtColorLegend } from './CourtColorLegend'
 import { getCourtColor, sortCourtsByOrder } from '@/lib/court-colors'
 import type { StatRow } from '../types'
@@ -12,7 +13,7 @@ interface PendingAgeRow {
   court: string
   year: number
   name: string
-  PendingAge: number
+  PendingAge: number | null
 }
 
 interface Props {
@@ -30,7 +31,7 @@ export const PendingAgeChart = memo(function PendingAgeChart({ data, selectedYea
       courts.flatMap((court) =>
         sortedYears.map((year) => {
           const v = getValue(court, 'PendingAge', year)
-          return { court, year, name: `${court} ${year}`, PendingAge: v ?? 0 }
+          return { court, year, name: `${court} ${year}`, PendingAge: v }
         })
       ),
     [courts, sortedYears, getValue]
@@ -56,7 +57,7 @@ export const PendingAgeChart = memo(function PendingAgeChart({ data, selectedYea
         },
       },
       { accessorKey: 'year', header: 'Year', meta: { className: 'text-right' }, cell: ({ getValue }) => <span className="block text-right">{getValue()}</span> },
-      { accessorKey: 'PendingAge', header: 'Pending Age (%)', meta: { className: 'text-right' }, cell: ({ getValue }) => <span className="block text-right">{getValue()}%</span> },
+      { accessorKey: 'PendingAge', header: 'Pending Age (%)', meta: { className: 'text-right' }, cell: ({ getValue }) => <NaCell value={getValue() as number | null} suffix="%" /> },
     ],
     []
   )
@@ -64,7 +65,7 @@ export const PendingAgeChart = memo(function PendingAgeChart({ data, selectedYea
   const series = courts.map((court) => ({
     name: court,
     type: 'column' as const,
-    data: tableData.map((r) => (r.court === court ? r.PendingAge : null)),
+    data: tableData.map((r) => (r.court === court ? (r.PendingAge ?? null) : null)),
     color: getCourtColor(court),
   }))
   const options: Highcharts.Options = {

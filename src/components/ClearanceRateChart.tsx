@@ -3,7 +3,7 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CourtColorLegend } from './CourtColorLegend'
-import { getCourtColor, sortCourtsByOrder } from '@/lib/court-colors'
+import { getCourtColor, getCourtShortLabel, sortCourtsByOrder } from '@/lib/court-colors'
 import type { StatRow } from '../types'
 
 interface Props {
@@ -22,10 +22,11 @@ function ClearanceRateChartInner({ data, selectedYears, getValue }: Props) {
   const series = useMemo(
     () =>
       courts.map((court) => ({
-        name: court,
+        name: getCourtShortLabel(court),
         type: 'line' as const,
         data: sortedYears.map((year) => getValue(court, 'ClearanceRate', year) ?? 0),
         color: getCourtColor(court),
+        court,
       })),
     [courts, sortedYears, getValue]
   )
@@ -34,10 +35,20 @@ function ClearanceRateChartInner({ data, selectedYears, getValue }: Props) {
     () => ({
       chart: { type: 'line', height: 400 },
       xAxis: { categories: sortedYears.map(String), crosshair: true },
-      yAxis: { min: 0, max: 110, title: { text: '%' }, gridLineDashStyle: 'Dot' },
+      yAxis: { min: 0, max: 110, title: { text: 'Clearance rate (%)' }, gridLineDashStyle: 'Dot' },
       series,
       legend: { enabled: true },
-      tooltip: { shared: true, valueSuffix: '%' },
+      tooltip: {
+        shared: true,
+        valueSuffix: '%',
+        formatter: function (this: Highcharts.TooltipFormatterContextObject) {
+          const parts = this.points?.map((p) => {
+            const court = (p.series.options as { court?: string }).court ?? p.series.name
+            return `<span style="color:${p.color}">●</span> ${court}: ${p.y}%`
+          }) ?? []
+          return parts.join('<br/>')
+        },
+      },
       credits: { enabled: false },
     }),
     [sortedYears, series]
