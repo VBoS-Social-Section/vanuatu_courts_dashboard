@@ -95,7 +95,7 @@ export function DataSourcesMethodologyPage({ embedded }: DataSourcesMethodologyP
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Data was extracted from annual report PDFs using LLM-assisted parsing. Metrics include filings, disposals, clearance rates, pending cases, timeliness, attendance, productivity, outcomes, and workload by type and location.
+              Data was extracted from Vanautu Courts annual report PDFs using a Python script (pdftotext + regex parsing). Metrics include filings, disposals, clearance rates, pending cases, timeliness, attendance, productivity, outcomes, and workload by type and location. Extracted values are verified against the PDFs and merged into the dashboard data CSVs.
             </p>
             <p className="text-sm text-muted-foreground">
               Assumptions: Court names are standardized (Court of Appeal, Supreme Court, Magistrates Court, Island Court). Island Court has no criminal/civil outcome data. Percentages and rates are as published unless otherwise noted.
