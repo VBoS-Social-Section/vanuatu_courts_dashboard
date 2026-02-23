@@ -5,7 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  base: '/react_only_dashboard/', // Required for GitHub Pages project site
+  base: '/vanuatu_courts_dashboard/', // Required for GitHub Pages project site
   plugins: [
     react(),
     tailwindcss(),
